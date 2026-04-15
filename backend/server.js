@@ -6,6 +6,7 @@ const pinoHttp = require('pino-http');
 const logger = require('./src/utils/logger');
 const testConnection = require('./src/config/testConnection');
 const sequelize = require('./src/config/db');
+const authRoutes = require('./src/routes/authRoutes');
 
 const app = express();
 
@@ -17,6 +18,9 @@ app.use(express.json());
 
 // Log every HTTP request and response automatically
 app.use(pinoHttp({ logger }));
+
+// Authentication routes
+app.use('/api/auth', authRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
