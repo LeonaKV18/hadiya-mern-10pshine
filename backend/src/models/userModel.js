@@ -76,4 +76,12 @@ const markAsVerified = async (userId) => {
   );
 };
 
-module.exports = { User, findByEmail, findById, createUser, findByVerificationToken, markAsVerified };
+// replace a user's verification token with a newly generated one
+const updateVerificationToken = async (userId, newToken) => {
+  return User.update(
+    { verification_token: newToken },
+    { where: { id: userId } }
+  );
+};
+
+module.exports = { User, findByEmail, findById, createUser, findByVerificationToken, markAsVerified, updateVerificationToken };
