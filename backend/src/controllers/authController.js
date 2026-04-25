@@ -5,15 +5,13 @@ const logger = require('../utils/logger');
 const registerUser = async (req, res, next) => {
   try {
     const { username, email, password } = req.body;
-    const user = await authService.register(username, email, password);
+    const result = await authService.register(username, email, password);
 
-    // Log successful registration with user details
-    logger.info({ userId: user.id, username: user.username }, 'New user registered');
+    logger.info({ email: req.body.email }, 'New user registration initiated — verification email sent');
 
     res.status(201).json({
       success: true,
-      message: 'Account created successfully.',
-      user,
+      message: result.message,
     });
   } catch (error) {
     // Log failed registration attempts as warnings
@@ -43,4 +41,37 @@ const loginUser = async (req, res, next) => {
   }
 };
 
-module.exports = { registerUser, loginUser };
+// Handle GET /api/auth/verify-email?token=...
+const verifyUserEmail = async (req, res, next) => {
+  try {
+    const { token } = req.query;
+    const result = await authService.verifyEmail(token);
+
+    logger.info({ token: token?.slice(0, 8) + '...' }, 'Email verified successfully');
+
+    res.status(200).json({
+      success: true,
+      message: result.message,
+    });
+  } catch (error) {
+    logger.warn({ reason: error.message }, 'Email verification failed');
+    next(error);
+  }
+};
+
+// Handle POST /api/auth/resend-verification
+const resendVerificationEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const result = await authService.resendVerification(email);
+
+    logger.info({ email: req.body.email }, 'Verification email resend requested');
+
+    res.status(200).json({ success: true, message: result.message });
+  } catch (error) {
+    logger.warn({ email: req.body.email, reason: error.message }, 'Verification resend failed');
+    next(error);
+  }
+};
+
+module.exports = { registerUser, loginUser, verifyUserEmail, resendVerificationEmail };
