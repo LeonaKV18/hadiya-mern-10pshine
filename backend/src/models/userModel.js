@@ -22,6 +22,16 @@ const User = sequelize.define('User', {
     type: DataTypes.STRING(255),
     allowNull: false,
   },
+  is_verified: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
+  },
+  verification_token: {
+    type: DataTypes.STRING(64),
+    allowNull: true,
+    defaultValue: null,
+  },
 }, {
   tableName: 'users',
   timestamps: true,
@@ -38,13 +48,32 @@ const findByEmail = async (email) => {
 const findById = async (id) => {
   return User.findOne({
     where: { id },
-    attributes: { exclude: ['password_hash'] },
+    attributes: { exclude: ['password_hash', 'verification_token'] },
   });
 };
 
-// insert a new user into the database
-const createUser = async (username, email, passwordHash) => {
-  return User.create({ username, email, password_hash: passwordHash });
+// insert a new user with a verification token, marked as unverified
+const createUser = async (username, email, passwordHash, verificationToken) => {
+  return User.create({
+    username,
+    email,
+    password_hash: passwordHash,
+    is_verified: false,
+    verification_token: verificationToken,
+  });
 };
 
-module.exports = { User, findByEmail, findById, createUser };
+// find a user by their verification token
+const findByVerificationToken = async (token) => {
+  return User.findOne({ where: { verification_token: token } });
+};
+
+// mark a user as verified and clear their token
+const markAsVerified = async (userId) => {
+  return User.update(
+    { is_verified: true, verification_token: null },
+    { where: { id: userId } }
+  );
+};
+
+module.exports = { User, findByEmail, findById, createUser, findByVerificationToken, markAsVerified };
