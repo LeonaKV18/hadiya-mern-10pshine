@@ -7,7 +7,11 @@ const logger = require('./src/utils/logger');
 const testConnection = require('./src/config/testConnection');
 const sequelize = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
+const noteRoutes = require('./src/routes/noteRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
+
+// ensure Note-User associations are registered before sync
+require('./src/models/noteModel');
 
 const app = express();
 
@@ -22,6 +26,7 @@ app.use(pinoHttp({ logger }));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/notes', noteRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
