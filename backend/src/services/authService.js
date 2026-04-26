@@ -1,9 +1,11 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 const validator = require('validator');
-const { findByEmail, createUser } = require('../models/userModel');
+const { findByEmail, createUser, findByVerificationToken, markAsVerified, updateVerificationToken } = require('../models/userModel');
+const { sendVerificationEmail } = require('../utils/emailService');
 
-// Register new user
+// Register a new user and send a verification email
 const register = async (username, email, password) => {
   // Trim inputs before validation
   username = username?.trim();
@@ -64,12 +66,30 @@ const register = async (username, email, password) => {
     throw error;
   }
 
-  const passwordHash = await bcrypt.hash(password, 12); 
-  const user = await createUser(username, email, passwordHash);
-  return { id: user.id, username: user.username, email: user.email };
+  // Generate a cryptographically secure random token (64 hex characters)
+  const verificationToken = crypto.randomBytes(32).toString('hex');
+
+  const passwordHash = await bcrypt.hash(password, 12);
+
+  // Create the user (inactive until email verificaion)
+  await createUser(username, email, passwordHash, verificationToken);
+
+  // Send the verification email
+  let emailSent = true;
+  try {
+    await sendVerificationEmail(email, verificationToken);
+  } catch (err) {
+    emailSent = false;
+  }
+
+  return {
+    message: emailSent
+      ? 'Registration successful. Please check your email to verify your account before logging in.'
+      : 'Verification email could not be sent. Please resend email to try again.',
+  };
 };
 
-// Log in an existing user
+// Log in a verified user
 const login = async (email, password) => {
   email = email?.trim().toLowerCase();
   password = password?.trim();
@@ -80,7 +100,6 @@ const login = async (email, password) => {
     throw error;
   }
 
-  // Basic format check before hitting the DB
   if (!validator.isEmail(email)) {
     const error = new Error('Invalid email or password.');
     error.status = 401;
@@ -101,6 +120,13 @@ const login = async (email, password) => {
     throw error;
   }
 
+  // Block login until the user verifies their email
+  if (!user.is_verified) {
+    const error = new Error('Please verify your email address before logging in. Check your inbox.');
+    error.status = 403;
+    throw error;
+  }
+
   const token = jwt.sign(
     { id: user.id, username: user.username },
     process.env.JWT_SECRET,
@@ -113,4 +139,59 @@ const login = async (email, password) => {
   };
 };
 
-module.exports = { register, login };
+// Verify a user's email address using the token from the verification link
+const verifyEmail = async (token) => {
+  if (!token) {
+    const error = new Error('Verification token is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  const user = await findByVerificationToken(token);
+  if (!user) {
+    const error = new Error('Invalid or expired verification token.');
+    error.status = 400;
+    throw error;
+  }
+
+  await markAsVerified(user.id);
+
+  return { message: 'Email verified successfully. You can now log in.' };
+};
+
+// Resend verification email for an existing unverified account
+const resendVerification = async (email) => {
+  email = email?.trim().toLowerCase();
+
+  if (!email || !validator.isEmail(email)) {
+    const error = new Error('A valid email address is required.');
+    error.status = 400;
+    throw error;
+  }
+
+  const user = await findByEmail(email);
+
+  if (!user || user.is_verified) {
+    return {
+      message: 'If an unverified account exists with that email, a new verification email has been sent.',
+    };
+  }
+
+  // Regenerate the token so old links in previous emails stop working
+  const newToken = crypto.randomBytes(32).toString('hex');
+  await updateVerificationToken(user.id, newToken);
+
+  try {
+    await sendVerificationEmail(email, newToken);
+  } catch (err) {
+    const error = new Error('Could not send the verification email. Please try again later.');
+    error.status = 500;
+    throw error;
+  }
+
+  return {
+    message: 'If unverified account with that email exists, a new verification email has been sent.',
+  };
+};
+
+module.exports = { register, login, verifyEmail, resendVerification};
