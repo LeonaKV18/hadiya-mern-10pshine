@@ -7,6 +7,7 @@ const logger = require('./src/utils/logger');
 const testConnection = require('./src/config/testConnection');
 const sequelize = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
+const errorHandler = require('./src/middleware/errorHandler');
 
 const app = express();
 
@@ -19,13 +20,16 @@ app.use(express.json());
 // Log every HTTP request and response automatically
 app.use(pinoHttp({ logger }));
 
-// Authentication routes
+// Routes
 app.use('/api/auth', authRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
   res.json({ message: 'PlumPad API is running' });
 });
+
+// Global error handler
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
 
@@ -38,7 +42,8 @@ const startServer = async () => {
   });
 };
 
-startServer();
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
-// Export app for use in tests
-module.exports = app;
+module.exports = { app, startServer };
