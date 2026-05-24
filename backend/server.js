@@ -1,6 +1,6 @@
 require('dotenv').config();
-require('./src/models/folderModel');
 
+const path = require('path');
 const express = require('express');
 const cors = require('cors');
 const pinoHttp = require('pino-http');
@@ -10,10 +10,13 @@ const sequelize = require('./src/config/db');
 const authRoutes = require('./src/routes/authRoutes');
 const noteRoutes = require('./src/routes/noteRoutes');
 const folderRoutes = require('./src/routes/folderRoutes');
+const uploadRoutes = require('./src/routes/uploadRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 
-// ensure Note-User associations are registered before sync
+// ensure model associations are registered before sync
 require('./src/models/noteModel');
+require('./src/models/folderModel');
+require('./src/models/attachmentModel');
 
 const app = express();
 
@@ -26,9 +29,13 @@ app.use(express.json());
 // Log every HTTP request and response automatically
 app.use(pinoHttp({ logger }));
 
+// Serve uploaded files as static content
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
+app.use('/api/notes', uploadRoutes);
 app.use('/api/folders', folderRoutes);
 
 // Health check route
