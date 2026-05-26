@@ -13,6 +13,7 @@ const {
   permanentlyDeleteNote,
 } = require('../controllers/noteController');
 const { authenticate } = require('../middleware/authMiddleware');
+const { exportNote } = require('../controllers/exportController');
 
 router.use(authenticate);
 
@@ -29,5 +30,6 @@ router.patch('/:id/autosave', autosaveNote);
 router.delete('/:id', deleteNote);
 router.post('/:id/restore', restoreNote);
 router.delete('/:id/permanent', permanentlyDeleteNote);
+router.get('/:id/export', exportNote);
 
 module.exports = router;
