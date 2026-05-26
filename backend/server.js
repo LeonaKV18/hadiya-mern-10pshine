@@ -12,6 +12,7 @@ const noteRoutes = require('./src/routes/noteRoutes');
 const folderRoutes = require('./src/routes/folderRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
+const passport = require('./src/config/passportConfig');
 
 // ensure model associations are registered before sync
 require('./src/models/noteModel');
