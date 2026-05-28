@@ -9,6 +9,7 @@ let findByEmailStub;
 let createUserStub;
 let findByVerificationTokenStub;
 let markAsVerifiedStub;
+let updateVerificationTokenStub;
 let sendVerificationEmailStub;
 let authService;
 
@@ -18,6 +19,7 @@ beforeEach(() => {
   createUserStub = sinon.stub();
   findByVerificationTokenStub = sinon.stub();
   markAsVerifiedStub = sinon.stub();
+  updateVerificationTokenStub = sinon.stub();
   sendVerificationEmailStub = sinon.stub().resolves();
 
   // proxyquire loads authService and replaces its dependencies with the stubs
@@ -27,6 +29,7 @@ beforeEach(() => {
       createUser: createUserStub,
       findByVerificationToken: findByVerificationTokenStub,
       markAsVerified: markAsVerifiedStub,
+      updateVerificationToken: updateVerificationTokenStub,
     },
     '../utils/emailService': {
       sendVerificationEmail: sendVerificationEmailStub,
@@ -272,5 +275,67 @@ describe('authService.verifyEmail', () => {
 
     expect(markAsVerifiedStub.calledWith(1)).to.be.true;
     expect(result.message).to.include('verified');
+  });
+});
+
+describe('authService.resendVerification', () => {
+  it('should throw 400 if email is empty', async () => {
+    try {
+      await authService.resendVerification('');
+      expect.fail('Expected error was not thrown');
+    } catch (err) {
+      expect(err.status).to.equal(400);
+    }
+  });
+
+  it('should throw 400 if email format is invalid', async () => {
+    try {
+      await authService.resendVerification('not-an-email');
+      expect.fail('Expected error was not thrown');
+    } catch (err) {
+      expect(err.status).to.equal(400);
+    }
+  });
+
+  it('should return a generic message if user is not found', async () => {
+    findByEmailStub.resolves(null);
+
+    const result = await authService.resendVerification('nobody@example.com');
+    expect(result.message).to.be.a('string');
+    expect(sendVerificationEmailStub.called).to.be.false;
+  });
+
+  it('should return a generic message if the user is already verified', async () => {
+    findByEmailStub.resolves({ id: 1, is_verified: true });
+
+    const result = await authService.resendVerification('verified@example.com');
+    expect(result.message).to.be.a('string');
+    expect(sendVerificationEmailStub.called).to.be.false;
+  });
+
+  it('should update the token and send a new verification email', async () => {
+    findByEmailStub.resolves({ id: 1, is_verified: false });
+    updateVerificationTokenStub.resolves();
+    sendVerificationEmailStub.resolves();
+
+    const result = await authService.resendVerification('unverified@example.com');
+
+    expect(updateVerificationTokenStub.calledOnce).to.be.true;
+    expect(sendVerificationEmailStub.calledOnce).to.be.true;
+    expect(result.message).to.be.a('string');
+  });
+
+  it('should throw 500 if sending the verification email fails', async () => {
+    findByEmailStub.resolves({ id: 1, is_verified: false });
+    updateVerificationTokenStub.resolves();
+    sendVerificationEmailStub.rejects(new Error('SMTP connection failed'));
+
+    try {
+      await authService.resendVerification('unverified@example.com');
+      expect.fail('Expected error was not thrown');
+    } catch (err) {
+      expect(err.status).to.equal(500);
+      expect(err.message).to.include('email');
+    }
   });
 });

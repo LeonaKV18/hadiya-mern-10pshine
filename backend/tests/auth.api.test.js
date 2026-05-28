@@ -1,20 +1,12 @@
 const request = require('supertest');
 const { expect } = require('chai');
 const { app } = require('../server');
-const sequelize = require('../src/config/db');
 const { User } = require('../src/models/userModel');
 
 require('../src/models/noteModel');
 
 before(async function () {
   this.timeout(15000);
-  // Connect to the db and create tables fresh for tests
-  await sequelize.authenticate();
-  await sequelize.sync({ force: true });
-});
-
-after(async () => {
-  await sequelize.close();
 });
 
 describe('POST /api/auth/register', () => {
