@@ -113,6 +113,12 @@ const login = async (email, password) => {
     throw error;
   }
 
+  if (!user.password_hash) {
+    const error = new Error('Invalid email or password.');
+    error.status = 401;
+    throw error;
+  }
+
   const isMatch = await bcrypt.compare(password, user.password_hash);
   if (!isMatch) {
     const error = new Error('Invalid email or password.');
