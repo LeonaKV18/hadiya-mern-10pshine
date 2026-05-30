@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { verifyEmail } from '../api/auth';
 import styles from './VerifyEmailPage.module.css';
@@ -7,8 +7,12 @@ const VerifyEmailPage = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState('loading');
   const [message, setMessage] = useState('');
+  const hasRun = useRef(false);
 
   useEffect(() => {
+    if (hasRun.current) return;
+    hasRun.current = true;
+
     const token = searchParams.get('token');
 
     if (!token) {
