@@ -81,6 +81,14 @@
   color: var(--color-text-primary);
 }
 
+.subSectionTitle {
+  font-family: 'Lora', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  margin: 6px 0 12px;
+}
+
 .noteCount {
   font-size: 13px;
   color: var(--color-text-muted);
@@ -91,6 +99,7 @@
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
   gap: 16px;
+  margin-bottom: 12px;
 }
 
 /* Loading skeletons */
@@ -137,4 +146,83 @@
 .emptyHint {
   font-size: 13px;
   color: var(--color-text-muted);
+}
+
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--color-plum-pale);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.selectAllBtn {
+  background: var(--color-surface);
+  color: var(--color-plum-dark);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.selectAllBtn:hover {
+  background: var(--color-surface-hover);
+}
+
+.bulkCount {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-plum-dark);
+  flex: 1;
+}
+
+.bulkBtn {
+  background: var(--color-plum-dark);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.bulkBtn:hover {
+  background: var(--color-plum);
+}
+
+.bulkSelect {
+  padding: 6px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+  cursor: pointer;
+}
+
+.noteCardWrapper {
+  position: relative;
+}
+
+.noteCheckbox {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 2;
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+.noteCardWrapper:hover .noteCheckbox {
+  opacity: 1;
+}
+
+.noteCheckbox:checked {
+  opacity: 1;
 }
