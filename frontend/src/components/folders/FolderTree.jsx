@@ -3,28 +3,61 @@ import toast from 'react-hot-toast';
 import { createFolder, renameFolder, deleteFolder } from '../../api/folders';
 import styles from './FolderTree.module.css';
 
-const FolderItem = ({ folder, depth, selected, onSelect, onRefresh }) => {
+const ConfirmDialog = ({ message, onConfirm, onCancel }) => (
+  <div className={styles.dialogOverlay}>
+    <div className={styles.dialog}>
+      <p className={styles.dialogMsg}>{message}</p>
+      <div className={styles.dialogActions}>
+        <button className={styles.dialogCancel} onClick={onCancel}>Cancel</button>
+        <button className={styles.dialogConfirm} onClick={onConfirm}>Delete</button>
+      </div>
+    </div>
+  </div>
+);
+
+const FolderItem = ({ folder, depth, selected, onSelect, onRefresh, onDeleteSelected, allFolders }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(folder.name);
   const [showActions, setShowActions] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
 
   const handleRename = async () => {
-    if (!editName.trim() || editName.trim() === folder.name) {
-      setIsEditing(false);
-      return;
-    }
-    try {
-      await renameFolder(folder.id, editName.trim());
-      onRefresh();
-      setIsEditing(false);
-    } catch {
-      toast.error('Failed to rename folder.');
-    }
-  };
+      const trimmed = editName.trim();
+      if (!trimmed || trimmed === folder.name) {
+        setIsEditing(false);
+        return;
+      }
 
-  const handleDelete = async () => {
+      // Check for duplicate name (case-insensitive, excluding self)
+      const isDuplicate = allFolders.some(
+        (f) => f.id !== folder.id && f.name.toLowerCase() === trimmed.toLowerCase()
+      );
+      if (isDuplicate) {
+        toast.error('A folder with this name already exists.');
+        setEditName(folder.name);
+        setIsEditing(false);
+        return;
+      }
+
+      try {
+        await renameFolder(folder.id, trimmed);
+        onRefresh();
+        setIsEditing(false);
+      } catch (err) {
+        const msg = err.response?.data?.message || 'Failed to rename folder.';
+        toast.error(msg);
+        setIsEditing(false);
+      }
+    };
+
+  const handleDeleteConfirmed = async () => {
+    setConfirmDelete(false);
     try {
       await deleteFolder(folder.id);
+      // If the deleted folder was currently selected, clear the selection
+      if (selected === folder.id) {
+        onDeleteSelected();
+      }
       onRefresh();
     } catch {
       toast.error('Failed to delete folder.');
@@ -53,7 +86,7 @@ const FolderItem = ({ folder, depth, selected, onSelect, onRefresh }) => {
             onBlur={handleRename}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleRename();
-              if (e.key === 'Escape') setIsEditing(false);
+              if (e.key === 'Escape') { setIsEditing(false); setEditName(folder.name); }
             }}
             autoFocus
             onClick={(e) => e.stopPropagation()}
@@ -73,7 +106,7 @@ const FolderItem = ({ folder, depth, selected, onSelect, onRefresh }) => {
             </button>
             <button
               className={[styles.actionBtn, styles.deleteBtn].join(' ')}
-              onClick={handleDelete}
+              onClick={() => setConfirmDelete(true)}
               title="Delete"
             >
               ✕
@@ -91,22 +124,41 @@ const FolderItem = ({ folder, depth, selected, onSelect, onRefresh }) => {
           selected={selected}
           onSelect={onSelect}
           onRefresh={onRefresh}
+          onDeleteSelected={onDeleteSelected}
         />
       ))}
+
+      {confirmDelete && (
+        <ConfirmDialog
+          message={`Delete "${folder.name}" and move all its notes to All Notes?`}
+          onConfirm={handleDeleteConfirmed}
+          onCancel={() => setConfirmDelete(false)}
+        />
+      )}
     </div>
   );
 };
 
-const FolderTree = ({ folders, selected, onSelect, onCreated }) => {
+const FolderTree = ({ folders, selected, onSelect, onCreated, onDeleteSelected }) => {
   const [newName, setNewName] = useState('');
   const [showInput, setShowInput] = useState(false);
+  const [nameError, setNameError] = useState('');
 
   const handleCreate = async () => {
-    if (!newName.trim()) return;
+    const trimmed = newName.trim();
+    if (!trimmed) return;
+
+    // Check for duplicate name
+    if (folders.some((f) => f.name.toLowerCase() === trimmed.toLowerCase())) {
+      setNameError('A folder with this name already exists.');
+      return;
+    }
+
     try {
-      await createFolder(newName.trim(), null);
+      await createFolder(trimmed, null);
       onCreated();
       setNewName('');
+      setNameError('');
       setShowInput(false);
     } catch {
       toast.error('Failed to create folder.');
@@ -119,7 +171,7 @@ const FolderTree = ({ folders, selected, onSelect, onCreated }) => {
         <span className={styles.treeLabel}>Folders</span>
         <button
           className={styles.addBtn}
-          onClick={() => setShowInput((v) => !v)}
+          onClick={() => { setShowInput((v) => !v); setNameError(''); }}
           title="New folder"
         >
           +
@@ -131,14 +183,15 @@ const FolderTree = ({ folders, selected, onSelect, onCreated }) => {
           <input
             placeholder="Folder name..."
             value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            onChange={(e) => { setNewName(e.target.value); setNameError(''); }}
             onKeyDown={(e) => {
               if (e.key === 'Enter') handleCreate();
-              if (e.key === 'Escape') setShowInput(false);
+              if (e.key === 'Escape') { setShowInput(false); setNameError(''); }
             }}
             className={styles.createInput}
             autoFocus
           />
+          {nameError && <p className={styles.nameError}>{nameError}</p>}
         </div>
       )}
 
@@ -154,6 +207,8 @@ const FolderTree = ({ folders, selected, onSelect, onCreated }) => {
             selected={selected}
             onSelect={onSelect}
             onRefresh={onCreated}
+            onDeleteSelected={onDeleteSelected}
+            allFolders={folders}
           />
         ))}
       </div>
