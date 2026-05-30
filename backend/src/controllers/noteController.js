@@ -58,8 +58,14 @@ const createNote = async (req, res, next) => {
 const updateNote = async (req, res, next) => {
   try {
     const noteId = parseInt(req.params.id, 10);
-    const { title, content } = req.body;
-    const note = await noteService.updateExistingNote(noteId, req.user.id, title, content);
+    const { title, content, folder_id } = req.body;
+    const note = await noteService.updateExistingNote(
+      noteId,
+      req.user.id,
+      title,
+      content,
+      folder_id
+    );
     logger.info({ userId: req.user.id, noteId }, 'Note updated');
     res.status(200).json({ success: true, note });
   } catch (error) {
@@ -71,15 +77,25 @@ const updateNote = async (req, res, next) => {
 const autosaveNote = async (req, res, next) => {
   try {
     const noteId = parseInt(req.params.id, 10);
-    const { content } = req.body;
-    const note = await noteService.autosaveNote(noteId, req.user.id, content);
+    const { content, title } = req.body;
+    const note = await noteService.autosaveNote(noteId, req.user.id, { title, content });
     res.status(200).json({ success: true, saved_at: note.updated_at });
   } catch (error) {
     next(error);
   }
 };
 
-// DELETE /api/notes/:id  (soft delete - move to trash)
+
+const togglePin = async (req, res, next) => {
+  try {
+    const noteId = parseInt(req.params.id, 10);
+    const note = await noteService.togglePinNote(noteId, req.user.id);
+    logger.info({ userId: req.user.id, noteId, pinned: note.is_pinned }, 'Note pin toggled');
+    res.status(200).json({ success: true, note });
+  } catch (error) {
+    next(error);
+  }
+};
 const deleteNote = async (req, res, next) => {
   try {
     const noteId = parseInt(req.params.id, 10);
@@ -123,6 +139,7 @@ module.exports = {
   createNote,
   updateNote,
   autosaveNote,
+  togglePin,
   deleteNote,
   restoreNote,
   permanentlyDeleteNote,
