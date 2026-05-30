@@ -1,4 +1,4 @@
-const { findById, updatePreferences } = require('../models/userModel');
+const { findById, updatePreferences, deleteUserById } = require('../models/userModel');
 const logger = require('../utils/logger');
 
 // GET /api/users/me
