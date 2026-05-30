@@ -16,11 +16,13 @@ client.interceptors.request.use((config) => {
   return config;
 });
 
-// On 401 responses, clear local auth and redirect to login
+// On 401 responses, clear local auth and redirect to login -  but NOT for auth
 client.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const url = error.config?.url || '';
+    const isAuthRequest = url.includes('/auth/');
+    if (error.response?.status === 401 && !isAuthRequest) {
       localStorage.removeItem('token');
       localStorage.removeItem('user');
       window.location.href = '/login';
