@@ -1,0 +1,98 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;1,400&display=swap');
+
+:root {
+  /* Plum palette */
+  --color-plum-dark: #54234F;
+  --color-plum: #68405F;
+  --color-plum-mid: #8E758A;
+  --color-plum-light: #9D7A90;
+  --color-plum-pale: #C9B5C5;
+
+  /* Pastel green palette */
+  --color-sage-dark: #858E7B;
+  --color-sage: #809684;
+  --color-sage-light: #BAC6B2;
+  --color-sage-pale: #D6DECE;
+
+  /* Neutral / background */
+  --color-cream: #FAF8F4;
+  --color-warm-white: #FFF6EA;
+  --color-text-primary: #2C1A2B;
+  --color-text-secondary: #6B5568;
+  --color-text-muted: #9A8996;
+  --color-border: #E2D9E0;
+  --color-border-light: #EDE7EB;
+
+  /* Semantic */
+  --color-surface: #FFFFFF;
+  --color-surface-hover: #F5F0F4;
+  --color-danger: #C0565A;
+  --color-danger-light: #F9ECEC;
+
+  /* Spacing */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(84, 35, 79, 0.08);
+  --shadow-md: 0 4px 12px rgba(84, 35, 79, 0.10);
+  --shadow-lg: 0 8px 24px rgba(84, 35, 79, 0.12);
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--color-cream);
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--color-plum);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--color-plum-dark);
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  outline: none;
+}
+
+input, textarea {
+  font-family: inherit;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-plum-pale);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-plum-mid);
+}

@@ -1,0 +1,104 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-cream);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 48px 40px;
+  text-align: center;
+  max-width: 380px;
+  width: 100%;
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.logoIcon {
+  font-size: 24px;
+  color: var(--color-plum);
+}
+
+.appName {
+  font-family: 'Lora', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--color-plum-dark);
+  margin-bottom: 8px;
+}
+
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-plum);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.iconSuccess {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-sage-pale);
+  color: var(--color-sage-dark);
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconError {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-danger-light);
+  color: var(--color-danger);
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card h2 {
+  font-family: 'Lora', serif;
+  font-size: 20px;
+  color: var(--color-text-primary);
+}
+
+.card p {
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.loginLink {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 10px 28px;
+  background: var(--color-plum-dark);
+  color: #fff;
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  font-size: 14px;
+  transition: background 0.15s;
+}
+
+.loginLink:hover {
+  background: var(--color-plum);
+  color: #fff;
+}
