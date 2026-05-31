@@ -114,6 +114,7 @@ const autosaveNote = async (noteId, userId, { title, content }) => {
 };
 
 // Toggle the pinned state of a note
+// Toggle the pinned state of a note
 const togglePinNote = async (noteId, userId) => {
   const note = await getNoteById(noteId);
 
@@ -129,7 +130,22 @@ const togglePinNote = async (noteId, userId) => {
     throw error;
   }
 
-  return updateNote(note, { is_pinned: !note.is_pinned });
+  const currentPinned = Boolean(
+    typeof note.getDataValue === 'function'
+      ? note.getDataValue('is_pinned')
+      : note.is_pinned
+  );
+
+  const nextPinned = !currentPinned;
+
+  await note.update(
+    { is_pinned: nextPinned },
+    { fields: ['is_pinned'] }
+  );
+
+  await note.reload();
+
+  return note;
 };
 
 // Soft delete a note (move to trash)
