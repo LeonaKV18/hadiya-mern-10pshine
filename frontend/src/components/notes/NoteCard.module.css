@@ -35,6 +35,15 @@
   opacity: 1;
 }
 
+.pinnedCard {
+  background: var(--color-warm-white);
+  border-color: var(--color-plum-pale);
+}
+
+.pinnedCard::before {
+  opacity: 1;
+}
+
 .cardInner {
   flex: 1;
 }
@@ -56,7 +65,7 @@
   line-height: 1.55;
   display: -webkit-box;
   -webkit-line-clamp: 3;
-  line-clamp: 3; 
+  line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -93,4 +102,106 @@
 .trashBtn:hover {
   color: var(--color-danger);
   background: var(--color-danger-light);
+}
+
+.folderBadge {
+  display: inline-block;
+  font-size: 11px;
+  color: var(--color-plum-mid);
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+
+.cardActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.pinBtn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+  opacity: 0;
+}
+
+.card:hover .pinBtn {
+  opacity: 1;
+}
+
+.pinBtn:hover {
+  color: var(--color-plum);
+  background: var(--color-surface-hover);
+}
+
+/* A pinned note keeps its pin visible even when not hovered */
+.pinActive {
+  opacity: 1;
+  color: var(--color-plum);
+}
+
+.moveWrapper {
+  position: relative;
+}
+
+.moveBtn {
+  background: transparent;
+  border: none;
+  font-size: 14px;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  padding: 3px 6px;
+  border-radius: var(--radius-sm);
+  transition: color 0.15s, background 0.15s;
+  opacity: 0;
+}
+
+.card:hover .moveBtn {
+  opacity: 1;
+}
+
+.moveBtn:hover {
+  color: var(--color-plum);
+  background: var(--color-surface-hover);
+}
+
+.moveMenu {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  min-width: 160px;
+  z-index: 100;
+  overflow: hidden;
+}
+
+.moveMenuItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.13s;
+}
+
+.moveMenuItem:hover {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+}
+
+.moveMenuItemActive {
+  color: var(--color-plum);
+  font-weight: 500;
 }

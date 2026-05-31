@@ -11,7 +11,7 @@
 .group {
   display: flex;
   align-items: center;
-  gap: 1px;
+  gap: 2px;
 }
 
 .divider {
@@ -43,4 +43,162 @@
 .toolBtn.active {
   background: var(--color-plum-pale);
   color: var(--color-plum-dark);
+}
+
+.select,
+.selectSmall {
+  background: var(--color-cream);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  color: var(--color-text-primary);
+  padding: 4px 6px;
+  cursor: pointer;
+  outline: none;
+}
+
+.select {
+  min-width: 120px;
+}
+
+.selectSmall {
+  width: 64px;
+}
+
+.select:focus,
+.selectSmall:focus {
+  border-color: var(--color-plum-pale);
+}
+
+.colorLabel {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.13s;
+}
+
+.colorLabel:hover {
+  background: var(--color-surface-hover);
+}
+
+.colorGlyph,
+.highlightGlyph {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+
+.highlightGlyph {
+  background: rgba(186, 198, 178, 0.5);
+  padding: 0 3px;
+  border-radius: 2px;
+}
+
+/* The native color input sits invisibly over its label */
+.colorInput {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+}
+
+/* Link / image dialog */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 26, 43, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px;
+  width: 90%;
+  max-width: 380px;
+  box-shadow: var(--shadow-lg);
+}
+
+.modalTitle {
+  font-family: 'Lora', serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 14px;
+}
+
+.modalInput {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  background: var(--color-cream);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.modalInput:focus {
+  border-color: var(--color-plum-pale);
+}
+
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.modalRemove {
+  margin-right: auto;
+  background: transparent;
+  border: none;
+  color: var(--color-danger);
+  font-size: 13px;
+  cursor: pointer;
+  padding: 7px 4px;
+}
+
+.modalCancel {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 7px 16px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+}
+
+.modalCancel:hover {
+  background: var(--color-surface-hover);
+}
+
+.modalConfirm {
+  background: var(--color-plum-dark);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 7px 18px;
+  font-size: 13px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.modalConfirm:hover {
+  background: var(--color-plum);
 }

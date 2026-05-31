@@ -51,6 +51,66 @@
   color: var(--color-border);
 }
 
+.bulkBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--color-plum-pale);
+  border-radius: var(--radius-md);
+  margin-bottom: 16px;
+}
+
+.selectAllBtn {
+  background: var(--color-surface);
+  color: var(--color-plum-dark);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.selectAllBtn:hover {
+  background: var(--color-surface-hover);
+}
+
+.bulkCount {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-plum-dark);
+  flex: 1;
+}
+
+.bulkBtnSecondary {
+  background: var(--color-sage-light);
+  color: var(--color-text-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.bulkBtnSecondary:hover {
+  background: var(--color-sage);
+  color: #fff;
+}
+
+.bulkBtnDanger {
+  background: var(--color-danger);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.bulkBtnDanger:hover {
+  background: #a84347;
+}
+
 .list {
   display: flex;
   flex-direction: column;
@@ -66,6 +126,13 @@
   align-items: center;
   justify-content: space-between;
   gap: 16px;
+}
+
+.trashCheckbox {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  flex-shrink: 0;
 }
 
 .trashInfo {
@@ -92,4 +159,44 @@
   display: flex;
   gap: 8px;
   flex-shrink: 0;
+}
+
+.dialogOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(44, 26, 43, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 28px 32px;
+  max-width: 360px;
+  width: 90%;
+  box-shadow: var(--shadow-lg);
+}
+
+.dialogTitle {
+  font-family: 'Lora', serif;
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.dialogBody {
+  font-size: 13.5px;
+  color: var(--color-text-secondary);
+  margin-bottom: 20px;
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
 }
