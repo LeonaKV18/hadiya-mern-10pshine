@@ -206,22 +206,22 @@ describe('noteService.autosaveNote', () => {
     }
   });
 
-  it('should save the content when the user owns the note', async () => {
+it('should save the content when the user owns the note', async () => {
     const note = { id: 1, user_id: 1, content: 'old content' };
     getNoteByIdStub.resolves(note);
     updateNoteStub.resolves({ ...note, content: '<p>New</p>' });
 
-    await noteService.autosaveNote(1, 1, '<p>New</p>');
+    await noteService.autosaveNote(1, 1, { content: '<p>New</p>' });
     expect(updateNoteStub.calledWith(note, { content: '<p>New</p>' })).to.be.true;
   });
 
-  it('should keep existing content if new content is undefined', async () => {
+  it('should not change content when no new content is provided', async () => {
     const note = { id: 1, user_id: 1, content: 'existing content' };
     getNoteByIdStub.resolves(note);
     updateNoteStub.resolves(note);
 
-    await noteService.autosaveNote(1, 1, undefined);
-    expect(updateNoteStub.calledWith(note, { content: 'existing content' })).to.be.true;
+    await noteService.autosaveNote(1, 1, {});
+    expect(updateNoteStub.calledWith(note, {})).to.be.true;
   });
 });
 
@@ -306,5 +306,43 @@ describe('noteService.permanentlyDeleteExistingNote', () => {
     } catch (err) {
       expect(err.status).to.equal(403);
     }
+  });
+});
+
+describe('noteService.togglePinNote', () => {
+  it('should throw 404 if the note does not exist', async () => {
+    getNoteByIdStub.resolves(null);
+    try {
+      await noteService.togglePinNote(99, 1);
+      expect.fail('Expected error was not thrown');
+    } catch (err) {
+      expect(err.status).to.equal(404);
+    }
+  });
+
+  it('should throw 403 if the note belongs to a different user', async () => {
+    getNoteByIdStub.resolves({ id: 1, user_id: 2, is_pinned: false });
+    try {
+      await noteService.togglePinNote(1, 1);
+      expect.fail('Expected error was not thrown');
+    } catch (err) {
+      expect(err.status).to.equal(403);
+    }
+  });
+
+  it('should flip is_pinned from false to true', async () => {
+    const note = { id: 1, user_id: 1, is_pinned: false };
+    getNoteByIdStub.resolves(note);
+    updateNoteStub.resolves({ ...note, is_pinned: true });
+    await noteService.togglePinNote(1, 1);
+    expect(updateNoteStub.calledWith(note, { is_pinned: true })).to.be.true;
+  });
+
+  it('should flip is_pinned from true to false', async () => {
+    const note = { id: 1, user_id: 1, is_pinned: true };
+    getNoteByIdStub.resolves(note);
+    updateNoteStub.resolves({ ...note, is_pinned: false });
+    await noteService.togglePinNote(1, 1);
+    expect(updateNoteStub.calledWith(note, { is_pinned: false })).to.be.true;
   });
 });
