@@ -26,6 +26,7 @@ app.use(cors());
 
 // Parse incoming JSON request bodies
 app.use(express.json());
+app.use(passport.initialize());
 
 // Log every HTTP request and response automatically
 app.use(pinoHttp({ logger }));
