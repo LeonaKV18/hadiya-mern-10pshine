@@ -13,6 +13,7 @@ const folderRoutes = require('./src/routes/folderRoutes');
 const uploadRoutes = require('./src/routes/uploadRoutes');
 const errorHandler = require('./src/middleware/errorHandler');
 const passport = require('./src/config/passportConfig');
+const userRoutes = require('./src/routes/userRoutes');
 
 // ensure model associations are registered before sync
 require('./src/models/noteModel');
@@ -39,6 +40,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/notes', noteRoutes);
 app.use('/api/notes', uploadRoutes);
 app.use('/api/folders', folderRoutes);
+app.use('/api/users', userRoutes);
 
 // Health check route
 app.get('/', (req, res) => {
