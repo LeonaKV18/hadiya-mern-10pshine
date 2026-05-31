@@ -23,6 +23,7 @@ import {
 } from '../api/notes';
 import EditorToolbar from '../components/editor/EditorToolbar';
 import Button from '../components/ui/Button';
+import { RobotIcon } from '../components/ui/Icons';
 import styles from './NoteEditorPage.module.css';
 
 const AUTOSAVE_DELAY_MS = 2000;
@@ -33,7 +34,6 @@ const NoteEditorPage = () => {
   const location = useLocation();
   const fromFolder = location.state?.fromFolder;
 
-  const [note, setNote] = useState(null);
   const [title, setTitle] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [isSummarizing, setIsSummarizing] = useState(false);
@@ -111,7 +111,6 @@ const NoteEditorPage = () => {
         const res = await getNoteById(id);
         if (cancelled) return;
         const n = res.data.note;
-        setNote(n);
         setTitle(n.title);
         titleRef.current = n.title || '';
         pendingContent.current = n.content || '';
@@ -231,7 +230,10 @@ const NoteEditorPage = () => {
 
         <div className={styles.actions}>
           <Button variant="ghost" size="sm" onClick={handleSummarize} isLoading={isSummarizing}>
-            ✦ Summarize
+            <span className={styles.aiButtonLabel}>
+              <RobotIcon size={15} />
+              Summarize
+            </span>
           </Button>
 
           <Button variant="ghost" size="sm" onClick={handleExportPdf}>
@@ -256,7 +258,10 @@ const NoteEditorPage = () => {
       {summary && (
         <div className={styles.summaryPanel}>
           <div className={styles.summaryHeader}>
-            <span>✦ AI Summary</span>
+            <span className={styles.summaryTitle}>
+              <RobotIcon size={15} />
+              AI Summary
+            </span>
             <button onClick={() => setSummary(null)} className={styles.closeBtn}>✕</button>
           </div>
           <p className={styles.summaryText}>{summary}</p>
