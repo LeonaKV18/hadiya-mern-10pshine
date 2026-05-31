@@ -3,16 +3,81 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { getNotes, createNote, trashNote, searchNotes, updateNote, togglePin } from '../api/notes';
 import { getFolders } from '../api/folders';
+import { useAuth } from '../context/AuthContext';
 import Sidebar from '../components/layout/Sidebar';
 import NoteCard from '../components/notes/NoteCard';
 import Button from '../components/ui/Button';
+import { SearchIcon, NewNoteIcon } from '../components/ui/Icons';
 import styles from './DashboardPage.module.css';
+
+// Returns a time-of-day greeting word for the given hour
+const getGreeting = (hour) => {
+  if (hour < 5) return 'Late night thoughts';
+  if (hour < 12) return 'Good morning';
+  if (hour < 18) return 'Good afternoon';
+  return 'Good evening';
+};
+
+// Chooses which notes to display based on the active search/folder filters
+const pickDisplayedNotes = (searchResults, selectedFolder, notes) => {
+  if (searchResults !== null) return searchResults;
+  if (selectedFolder) return notes.filter((n) => n.folder_id === selectedFolder);
+  return notes;
+};
+
+// Builds the heading shown above the notes grid
+const getSectionTitle = (searchResults, searchQuery, selectedFolder, folders) => {
+  if (searchResults !== null) return `Results for "${searchQuery}"`;
+  if (selectedFolder) return folders.find((f) => f.id === selectedFolder)?.name || 'Folder';
+  return 'All Notes';
+};
+
+// Presentational body so the loading/empty/list branching stays out of the page component
+const NotesArea = ({ isLoading, displayedNotes, searchResults, pinnedNotes, otherNotes, renderCard }) => {
+  if (isLoading) {
+    return (
+      <div className={styles.loadingGrid}>
+        {[1, 2, 3, 4, 5, 6].map((i) => (
+          <div key={i} className={styles.skeleton} />
+        ))}
+      </div>
+    );
+  }
+  if (displayedNotes.length === 0) {
+    return (
+      <div className={styles.empty}>
+        <div className={styles.emptyIcon}>📑</div>
+        <p className={styles.emptyTitle}>
+          {searchResults !== null ? 'No notes match your search.' : 'No notes yet.'}
+        </p>
+        {searchResults === null && (
+          <p className={styles.emptyHint}>Click "New Note" to get started.</p>
+        )}
+      </div>
+    );
+  }
+  return (
+    <>
+      {pinnedNotes.length > 0 && (
+        <>
+          <h3 className={styles.subSectionTitle}>Pinned</h3>
+          <div className={styles.grid}>{pinnedNotes.map(renderCard)}</div>
+          {otherNotes.length > 0 && <h3 className={styles.subSectionTitle}>Others</h3>}
+        </>
+      )}
+      <div className={styles.grid}>{otherNotes.map(renderCard)}</div>
+    </>
+  );
+};
 
 const DashboardPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const selectedFolder = searchParams.get('folder') ? parseInt(searchParams.get('folder'), 10) : null;
+  const selectedFolder = searchParams.get('folder')
+    ? Number.parseInt(searchParams.get('folder'), 10)
+    : null;
 
   const setSelectedFolder = (id) => {
     if (id) {
@@ -140,12 +205,7 @@ const DashboardPage = () => {
     }
   };
 
-  const displayedNotes = searchResults !== null
-    ? searchResults
-    : selectedFolder
-    ? notes.filter((n) => n.folder_id === selectedFolder)
-    : notes;
-
+  const displayedNotes = pickDisplayedNotes(searchResults, selectedFolder, notes);
   const pinnedNotes = displayedNotes.filter((n) => n.is_pinned);
   const otherNotes = displayedNotes.filter((n) => !n.is_pinned);
 
@@ -161,8 +221,11 @@ const DashboardPage = () => {
     });
   };
 
+  const hour = new Date().getHours();
+  const greetingWord = getGreeting(hour);
+
   // Renders a single card wrapped with its selection checkbox
-  const renderCard = (note) => (
+  const renderCard = (note, index) => (
     <div key={note.id} className={styles.noteCardWrapper}>
       <input
         type="checkbox"
@@ -173,6 +236,7 @@ const DashboardPage = () => {
       />
       <NoteCard
         note={note}
+        variant={index % 4}
         onTrash={handleTrash}
         onPin={handlePin}
         folders={folders}
@@ -205,7 +269,7 @@ const DashboardPage = () => {
         {/* Top bar */}
         <header className={styles.topBar}>
           <div className={styles.searchWrapper}>
-            <span className={styles.searchIcon}>◎</span>
+            <SearchIcon className={styles.searchIcon} size={16} />
             <input
               className={styles.searchInput}
               type="text"
@@ -216,83 +280,62 @@ const DashboardPage = () => {
           </div>
 
           <Button onClick={handleCreateNote} isLoading={isCreating}>
-            + New Note
+            <NewNoteIcon size={16} /> New Note
           </Button>
         </header>
 
         {/* Notes area */}
         <div className={styles.content}>
+          <div className={styles.greeting}>
+            <h1 className={styles.greetingTitle}>
+              {hour < 5
+                ? `${greetingWord}, ${user?.username || 'there'}?`
+                : `${greetingWord}, ${user?.username || 'there'}`}
+            </h1>
+            <p className={styles.greetingSub}>Here's your cozy little workspace.</p>
+          </div>
+
           {selectedNoteIds.size > 0 && (
             <div className={styles.bulkBar}>
               <button className={styles.selectAllBtn} onClick={toggleSelectAll}>
                 {allSelected ? 'Deselect all' : 'Select all'}
               </button>
-              <span className={styles.bulkCount}>
-                {selectedNoteIds.size > 0 ? `${selectedNoteIds.size} selected` : ''}
-              </span>
-              {selectedNoteIds.size > 0 && (
-                <>
-                  <button className={styles.bulkBtn} onClick={handleBulkTrash}>Move to Trash</button>
-                  {folders.length > 0 && (
-                    <select
-                      className={styles.bulkSelect}
-                      defaultValue=""
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        handleBulkMove(val === '' ? null : parseInt(val, 10));
-                        e.target.value = '';
-                      }}
-                    >
-                      <option value="" disabled>Move to folder...</option>
-                      <option value="">All Notes (no folder)</option>
-                      {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
-                    </select>
-                  )}
-                  <button className={styles.bulkBtn} onClick={() => setSelectedNoteIds(new Set())}>Clear</button>
-                </>
+              <span className={styles.bulkCount}>{`${selectedNoteIds.size} selected`}</span>
+              <button className={styles.bulkBtn} onClick={handleBulkTrash}>Move to Trash</button>
+              {folders.length > 0 && (
+                <select
+                  className={styles.bulkSelect}
+                  defaultValue=""
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    handleBulkMove(val === '' ? null : Number.parseInt(val, 10));
+                    e.target.value = '';
+                  }}
+                >
+                  <option value="" disabled>Move to folder...</option>
+                  <option value="">All Notes (no folder)</option>
+                  {folders.map((f) => <option key={f.id} value={f.id}>{f.name}</option>)}
+                </select>
               )}
+              <button className={styles.bulkBtn} onClick={() => setSelectedNoteIds(new Set())}>Clear</button>
             </div>
           )}
 
           <div className={styles.sectionHeader}>
             <h2 className={styles.sectionTitle}>
-              {searchResults !== null
-                ? `Results for "${searchQuery}"`
-                : selectedFolder
-                ? folders.find((f) => f.id === selectedFolder)?.name || 'Folder'
-                : 'All Notes'}
+              {getSectionTitle(searchResults, searchQuery, selectedFolder, folders)}
             </h2>
             <span className={styles.noteCount}>{displayedNotes.length} notes</span>
           </div>
 
-          {isLoading ? (
-            <div className={styles.loadingGrid}>
-              {[1, 2, 3, 4, 5, 6].map((i) => (
-                <div key={i} className={styles.skeleton} />
-              ))}
-            </div>
-          ) : displayedNotes.length === 0 ? (
-            <div className={styles.empty}>
-              <div className={styles.emptyIcon}>✦</div>
-              <p className={styles.emptyTitle}>
-                {searchResults !== null ? 'No notes match your search.' : 'No notes yet.'}
-              </p>
-              {searchResults === null && (
-                <p className={styles.emptyHint}>Click "New Note" to get started.</p>
-              )}
-            </div>
-          ) : (
-            <>
-              {pinnedNotes.length > 0 && (
-                <>
-                  <h3 className={styles.subSectionTitle}>Pinned</h3>
-                  <div className={styles.grid}>{pinnedNotes.map(renderCard)}</div>
-                  {otherNotes.length > 0 && <h3 className={styles.subSectionTitle}>Others</h3>}
-                </>
-              )}
-              <div className={styles.grid}>{otherNotes.map(renderCard)}</div>
-            </>
-          )}
+          <NotesArea
+            isLoading={isLoading}
+            displayedNotes={displayedNotes}
+            searchResults={searchResults}
+            pinnedNotes={pinnedNotes}
+            otherNotes={otherNotes}
+            renderCard={renderCard}
+          />
         </div>
       </main>
     </div>
