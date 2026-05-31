@@ -8,6 +8,7 @@ const {
   createNote,
   updateNote,
   autosaveNote,
+  togglePin,
   deleteNote,
   restoreNote,
   permanentlyDeleteNote,
@@ -28,6 +29,7 @@ router.post('/', createNote);
 router.get('/:id', getNoteById);
 router.put('/:id', updateNote);
 router.patch('/:id/autosave', autosaveNote);
+router.patch('/:id/pin', togglePin);
 router.delete('/:id', deleteNote);
 router.post('/:id/restore', restoreNote);
 router.delete('/:id/permanent', permanentlyDeleteNote);

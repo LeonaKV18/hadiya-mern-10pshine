@@ -13,7 +13,7 @@ const transporter = nodemailer.createTransport({
 
 // Send verification email with a clickable link containing the token
 const sendVerificationEmail = async (toEmail, token) => {
-  const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
+  const verificationUrl = `${process.env.FRONTEND_URL}/verify-email?token=${token}`;
 
   if (process.env.NODE_ENV === 'test') {
     return { skipped: true };

@@ -55,7 +55,7 @@ const PORT = process.env.PORT || 5000;
 // Verify DB connection and sync Sequelize models before starting the server
 const startServer = async () => {
   await testConnection();
-  await sequelize.sync({ alter: true });
+  await sequelize.sync();
   app.listen(PORT, () => {
     logger.info(`Server running on port ${PORT}`);
   });

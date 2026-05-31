@@ -60,8 +60,8 @@ const createNewNote = async (userId, title, content, folderId) => {
   return createNote(userId, title.trim(), content, folderId);
 };
 
-// Update an existing note (full update — requires at least one field)
-const updateExistingNote = async (noteId, userId, title, content) => {
+// Update an existing note. title/content/folderId are all optional;
+const updateExistingNote = async (noteId, userId, title, content, folderId) => {
   const note = await getNoteById(noteId);
 
   if (!note) {
@@ -76,8 +76,8 @@ const updateExistingNote = async (noteId, userId, title, content) => {
     throw error;
   }
 
-  if (title === undefined && content === undefined) {
-    const error = new Error('Provide at least a title or content to update.');
+  if (title === undefined && content === undefined && folderId === undefined) {
+    const error = new Error('Provide at least a title, content, or folder to update.');
     error.status = 400;
     throw error;
   }
@@ -85,12 +85,13 @@ const updateExistingNote = async (noteId, userId, title, content) => {
   const fields = {};
   if (title !== undefined) fields.title = title.trim();
   if (content !== undefined) fields.content = content;
+  if (folderId !== undefined) fields.folder_id = folderId;
 
   return updateNote(note, fields);
 };
 
-// Autosave — only updates content, no title required
-const autosaveNote = async (noteId, userId, content) => {
+// Autosave — updates content, and the title too if a non-empty one is sent
+const autosaveNote = async (noteId, userId, { title, content }) => {
   const note = await getNoteById(noteId);
 
   if (!note) {
@@ -105,7 +106,30 @@ const autosaveNote = async (noteId, userId, content) => {
     throw error;
   }
 
-  return updateNote(note, { content: content !== undefined ? content : note.content });
+  const fields = {};
+  if (content !== undefined) fields.content = content;
+  if (typeof title === 'string' && title.trim()) fields.title = title.trim();
+
+  return updateNote(note, fields);
+};
+
+// Toggle the pinned state of a note
+const togglePinNote = async (noteId, userId) => {
+  const note = await getNoteById(noteId);
+
+  if (!note) {
+    const error = new Error('Note not found.');
+    error.status = 404;
+    throw error;
+  }
+
+  if (note.user_id !== userId) {
+    const error = new Error('You do not have permission to modify this note.');
+    error.status = 403;
+    throw error;
+  }
+
+  return updateNote(note, { is_pinned: !note.is_pinned });
 };
 
 // Soft delete a note (move to trash)
@@ -176,6 +200,7 @@ module.exports = {
   createNewNote,
   updateExistingNote,
   autosaveNote,
+  togglePinNote,
   trashNote,
   restoreTrashedNote,
   permanentlyDeleteExistingNote,

@@ -43,7 +43,10 @@ User.hasMany(Note, { foreignKey: 'user_id' });
 const getAllNotesByUser = async (userId) => {
   return Note.findAll({
     where: { user_id: userId },
-    order: [['updated_at', 'DESC']],
+    order: [
+      ['is_pinned', 'DESC'],
+      ['updated_at', 'DESC'],
+    ],
   });
 };
 
