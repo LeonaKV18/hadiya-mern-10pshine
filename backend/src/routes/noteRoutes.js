@@ -14,6 +14,7 @@ const {
 } = require('../controllers/noteController');
 const { authenticate } = require('../middleware/authMiddleware');
 const { exportNote } = require('../controllers/exportController');
+const { summarizeNote } = require('../controllers/aiController');
 
 router.use(authenticate);
 
@@ -31,5 +32,6 @@ router.delete('/:id', deleteNote);
 router.post('/:id/restore', restoreNote);
 router.delete('/:id/permanent', permanentlyDeleteNote);
 router.get('/:id/export', exportNote);
+router.post('/:id/summarize', summarizeNote);
 
 module.exports = router;
