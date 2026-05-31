@@ -15,6 +15,10 @@ const transporter = nodemailer.createTransport({
 const sendVerificationEmail = async (toEmail, token) => {
   const verificationUrl = `${process.env.BACKEND_URL}/api/auth/verify-email?token=${token}`;
 
+  if (process.env.NODE_ENV === 'test') {
+    return { skipped: true };
+  }
+
   await transporter.sendMail({
     from: `"PlumPad" <${process.env.EMAIL_FROM}>`,
     to: toEmail,

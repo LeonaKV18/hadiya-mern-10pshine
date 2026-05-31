@@ -2,7 +2,6 @@ const request = require('supertest');
 const { expect } = require('chai');
 const jwt = require('jsonwebtoken');
 const { app } = require('../server');
-const sequelize = require('../src/config/db');
 const { User } = require('../src/models/userModel');
 const { Note } = require('../src/models/noteModel');
 
@@ -16,8 +15,6 @@ let userB;
 
 before(async function () {
   this.timeout(15000);
-  await sequelize.authenticate();
-  await sequelize.sync({ force: true });
 
   const bcrypt = require('bcryptjs');
   const hash = await bcrypt.hash('Password1', 12);
@@ -42,10 +39,6 @@ before(async function () {
   // Generate tokens manually — no need to log in via HTTP for test setup
   tokenA = jwt.sign({ id: userA.id, username: userA.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
   tokenB = jwt.sign({ id: userB.id, username: userB.username }, process.env.JWT_SECRET, { expiresIn: '1h' });
-});
-
-after(async () => {
-  await sequelize.close();
 });
 
 describe('GET /api/notes', () => {
@@ -185,13 +178,13 @@ describe('DELETE /api/notes/:id', () => {
     expect(res.status).to.equal(403);
   });
 
-  it('should delete the note for its owner and return 200', async () => {
+  it('should move the note to trash for its owner and return 200', async () => {
     const res = await request(app)
       .delete(`/api/notes/${noteId}`)
       .set('Authorization', `Bearer ${tokenA}`);
 
     expect(res.status).to.equal(200);
-    expect(res.body.message).to.include('deleted');
+    expect(res.body.message).to.include('trash');
   });
 
   it('should return 404 when trying to delete an already deleted note', async () => {

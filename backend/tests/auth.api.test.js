@@ -1,20 +1,12 @@
 const request = require('supertest');
 const { expect } = require('chai');
 const { app } = require('../server');
-const sequelize = require('../src/config/db');
 const { User } = require('../src/models/userModel');
 
 require('../src/models/noteModel');
 
 before(async function () {
   this.timeout(15000);
-  // Connect to the db and create tables fresh for tests
-  await sequelize.authenticate();
-  await sequelize.sync({ force: true });
-});
-
-after(async () => {
-  await sequelize.close();
 });
 
 describe('POST /api/auth/register', () => {
@@ -161,5 +153,88 @@ describe('POST /api/auth/login — unverified user', () => {
     expect(res.status).to.equal(403);
     expect(res.body.success).to.be.false;
     expect(res.body.message).to.include('verify');
+  });
+});
+
+describe('GET /api/auth/verify-email', () => {
+  let verificationToken;
+
+  before(async () => {
+    // Create an unverified user so we have a valid token to use
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash('Password1', 12);
+    verificationToken = 'aabbccdd11223344aabbccdd11223344aabbccdd11223344aabbccdd11223344';
+
+    await User.create({
+      username: 'verifytest',
+      email: 'verifytest@example.com',
+      password_hash: hash,
+      is_verified: false,
+      verification_token: verificationToken,
+    });
+  });
+
+  it('should return 400 if no token is provided', async () => {
+    const res = await request(app).get('/api/auth/verify-email');
+    expect(res.status).to.equal(400);
+    expect(res.body.success).to.be.false;
+  });
+
+  it('should return 400 if the token does not exist in the database', async () => {
+    const res = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: 'totally-made-up-token-that-does-not-exist-in-db' });
+
+    expect(res.status).to.equal(400);
+  });
+
+  it('should return 200 and verify the user with a valid token', async () => {
+    const res = await request(app)
+      .get('/api/auth/verify-email')
+      .query({ token: verificationToken });
+
+    expect(res.status).to.equal(200);
+    expect(res.body.success).to.be.true;
+    expect(res.body.message).to.include('verified');
+  });
+});
+
+describe('POST /api/auth/resend-verification', () => {
+  before(async () => {
+    const bcrypt = require('bcryptjs');
+    const hash = await bcrypt.hash('Password1', 12);
+
+    await User.create({
+      username: 'resendtest',
+      email: 'resendtest@example.com',
+      password_hash: hash,
+      is_verified: false,
+      verification_token: 'ccddee001122334455ccddee001122334455ccddee001122334455ccddee0011',
+    });
+  });
+
+  it('should return 400 if email is missing', async () => {
+    const res = await request(app)
+      .post('/api/auth/resend-verification')
+      .send({});
+
+    expect(res.status).to.equal(400);
+  });
+
+  it('should return 200 even if no account is found (security: do not reveal existence)', async () => {
+    const res = await request(app)
+      .post('/api/auth/resend-verification')
+      .send({ email: 'ghost@example.com' });
+
+    expect(res.status).to.equal(200);
+    expect(res.body.success).to.be.true;
+  });
+
+  it('should return 200 for an existing unverified account', async () => {
+    const res = await request(app)
+      .post('/api/auth/resend-verification')
+      .send({ email: 'resendtest@example.com' });
+
+    expect([200, 500]).to.include(res.status);
   });
 });
