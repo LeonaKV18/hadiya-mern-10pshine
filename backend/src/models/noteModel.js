@@ -25,6 +25,11 @@ const Note = sequelize.define('Note', {
     type: DataTypes.TEXT('long'),
     allowNull: true,
   },
+  is_pinned: {
+  type: DataTypes.BOOLEAN,
+  allowNull: false,
+  defaultValue: false
+}
 }, {
   tableName: 'notes',
   timestamps: true,
