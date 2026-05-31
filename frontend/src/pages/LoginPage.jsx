@@ -5,6 +5,7 @@ import { login as loginApi } from '../api/auth';
 import { useAuth } from '../context/AuthContext';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { PlumPadIcon } from '../components/ui/Icons';
 import styles from './AuthPage.module.css';
 
 const LoginPage = () => {
@@ -62,8 +63,11 @@ const LoginPage = () => {
       <div className={styles.panel}>
         <div className={styles.panelInner}>
           <div className={styles.logo}>
-            <span className={styles.logoIcon}>✦</span>
-            <span className={styles.logoText}>PlumPad</span>
+            <span className={styles.logoIcon}><PlumPadIcon size={45} /></span>
+            <div className={styles.brandLockup}>
+              <span className={styles.logoText}>PlumPad</span>
+              <span className={styles.brandSub}>Your virtual notebook</span>
+            </div>
           </div>
           <p className={styles.tagline}>Your thoughts,<br />beautifully organised.</p>
           <div className={styles.decorCircle1} />
@@ -74,7 +78,7 @@ const LoginPage = () => {
       {/* Right panel — form */}
       <div className={styles.formSide}>
         <div className={styles.formCard}>
-          <h1 className={styles.heading}>Welcome back</h1>
+          <h1 className={styles.heading}>Welcome Back</h1>
           <p className={styles.subheading}>Sign in to your notes</p>
 
           <form onSubmit={handleSubmit} className={styles.form}>
