@@ -1,23 +1,33 @@
 const express = require('express');
 const router = express.Router();
+const {
+  getAllNotes,
+  getTrashedNotes,
+  searchNotes,
+  getNoteById,
+  createNote,
+  updateNote,
+  autosaveNote,
+  deleteNote,
+  restoreNote,
+  permanentlyDeleteNote,
+} = require('../controllers/noteController');
 const { authenticate } = require('../middleware/authMiddleware');
-const { getAllNotes, getNoteById, createNote, updateNote, deleteNote } = require('../controllers/noteController');
 
 router.use(authenticate);
 
-// GET /api/notes
+// Static paths first — must come before /:id
+router.get('/trash', getTrashedNotes);
+router.get('/search', searchNotes);
+
+// CRUD
 router.get('/', getAllNotes);
-
-// GET /api/notes/:id
-router.get('/:id', getNoteById);
-
-// POST /api/notes
 router.post('/', createNote);
-
-// PUT /api/notes/:id
+router.get('/:id', getNoteById);
 router.put('/:id', updateNote);
-
-// DELETE /api/notes/:id
+router.patch('/:id/autosave', autosaveNote);
 router.delete('/:id', deleteNote);
+router.post('/:id/restore', restoreNote);
+router.delete('/:id/permanent', permanentlyDeleteNote);
 
 module.exports = router;
