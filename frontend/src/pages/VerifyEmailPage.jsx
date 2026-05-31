@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, Link } from 'react-router-dom';
 import { verifyEmail } from '../api/auth';
+import { PlumPadIcon } from '../components/ui/Icons';
 import styles from './VerifyEmailPage.module.css';
 
 const VerifyEmailPage = () => {
@@ -35,8 +36,9 @@ const VerifyEmailPage = () => {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <span className={styles.logoIcon}>✦</span>
+        <span className={styles.logoIcon}><PlumPadIcon size={26} /></span>
         <h1 className={styles.appName}>PlumPad</h1>
+        <span className={styles.brandSub}>Your virtual notebook</span>
 
         {status === 'loading' && (
           <>

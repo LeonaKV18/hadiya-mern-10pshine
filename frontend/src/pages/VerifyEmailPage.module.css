@@ -23,16 +23,32 @@
 }
 
 .logoIcon {
-  font-size: 24px;
-  color: var(--color-plum);
+  width: 44px;
+  height: 44px;
+  border-radius: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-plum-dark);
+  color: var(--color-warm-white);
+  box-shadow: var(--shadow-sm);
 }
 
 .appName {
-  font-family: 'Lora', serif;
-  font-size: 22px;
+  font-family: var(--font-brand);
+  font-style: italic;
+  font-size: 26px;
   font-weight: 600;
   color: var(--color-plum-dark);
-  margin-bottom: 8px;
+  line-height: 1;
+}
+
+.brandSub {
+  font-size: 11.5px;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  margin-top: -6px;
+  margin-bottom: 4px;
 }
 
 .spinner {
@@ -75,7 +91,7 @@
 }
 
 .card h2 {
-  font-family: 'Lora', serif;
+  font-family: 'Newsreader', serif;
   font-size: 20px;
   color: var(--color-text-primary);
 }
@@ -91,7 +107,7 @@
   margin-top: 8px;
   padding: 10px 28px;
   background: var(--color-plum-dark);
-  color: #fff;
+  color: var(--color-warm-white);
   border-radius: var(--radius-md);
   font-weight: 500;
   font-size: 14px;
@@ -100,5 +116,5 @@
 
 .loginLink:hover {
   background: var(--color-plum);
-  color: #fff;
+  color: var(--color-warm-white);
 }
