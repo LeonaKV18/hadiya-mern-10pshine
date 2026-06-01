@@ -1,7 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import toast from 'react-hot-toast';
-import { createFolder, renameFolder, deleteFolder } from '../../api/folders';
+import { createFolder, renameFolder, deleteFolder, updateFolder } from '../../api/folders';
+import { EditIcon, CloseIcon } from '../ui/Icons';
 import styles from './FolderTree.module.css';
+
+// Limited pastel palette that matches the app's vibe
+const PALETTE = ['#d54ea4', '#9364d4', '#73d0a0', '#67d9d5', '#e17676', '#bb5aa8', '#ffeab2'];
 
 const ConfirmDialog = ({ message, onConfirm, onCancel }) => (
   <div className={styles.dialogOverlay}>
@@ -19,64 +24,119 @@ const FolderItem = ({ folder, depth, selected, onSelect, onRefresh, onDeleteSele
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(folder.name);
   const [showActions, setShowActions] = useState(false);
+  const [showColors, setShowColors] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
 
+  const colorBtnRef = useRef(null);
+  const colorPopoverRef = useRef(null);
+  const [popoverPos, setPopoverPos] = useState({ top: 0, left: 0 });
+
   const handleRename = async () => {
-      const trimmed = editName.trim();
-      if (!trimmed || trimmed === folder.name) {
-        setIsEditing(false);
-        return;
-      }
+    const trimmed = editName.trim();
+    if (!trimmed || trimmed === folder.name) {
+      setIsEditing(false);
+      return;
+    }
 
-      // Check for duplicate name (case-insensitive, excluding self)
-      const isDuplicate = allFolders.some(
-        (f) => f.id !== folder.id && f.name.toLowerCase() === trimmed.toLowerCase()
-      );
-      if (isDuplicate) {
-        toast.error('A folder with this name already exists.');
-        setEditName(folder.name);
-        setIsEditing(false);
-        return;
-      }
+    // Check for duplicate name (case-insensitive, excluding self)
+    const isDuplicate = allFolders.some(
+      (f) => f.id !== folder.id && f.name.toLowerCase() === trimmed.toLowerCase()
+    );
+    if (isDuplicate) {
+      toast.error('A folder with this name already exists.');
+      setEditName(folder.name);
+      setIsEditing(false);
+      return;
+    }
 
-      try {
-        await renameFolder(folder.id, trimmed);
-        onRefresh();
-        setIsEditing(false);
-      } catch (err) {
-        const msg = err.response?.data?.message || 'Failed to rename folder.';
-        toast.error(msg);
-        setIsEditing(false);
-      }
-    };
+    try {
+      await renameFolder(folder.id, trimmed);
+      onRefresh();
+      setIsEditing(false);
+    } catch (err) {
+      const msg = err.response?.data?.message || 'Failed to rename folder.';
+      toast.error(msg);
+      setIsEditing(false);
+    }
+  };
 
   const handleDeleteConfirmed = async () => {
     setConfirmDelete(false);
     try {
       await deleteFolder(folder.id);
-      // If the deleted folder was currently selected, clear the selection
-      if (selected === folder.id) {
-        onDeleteSelected();
-      }
+      if (selected === folder.id) onDeleteSelected();
       onRefresh();
     } catch {
       toast.error('Failed to delete folder.');
     }
   };
 
+  const handleColor = async (color) => {
+    setShowColors(false);
+    try {
+      await updateFolder(folder.id, { color });
+      onRefresh();
+    } catch {
+      toast.error('Failed to update folder color.');
+    }
+  };
+
+  const toggleColorPopover = (e) => {
+    e.stopPropagation();
+
+    const rect = colorBtnRef.current?.getBoundingClientRect();
+    if (!rect) return;
+
+    const popoverWidth = 150;
+    const popoverHeight = 90;
+    const gap = 8;
+
+    let left = rect.right - popoverWidth;
+    let top = rect.bottom + gap;
+
+    if (top + popoverHeight > window.innerHeight - 8) {
+      top = rect.top - popoverHeight - gap;
+    }
+
+    left = Math.max(8, Math.min(left, window.innerWidth - popoverWidth - 8));
+
+    setPopoverPos({ top, left });
+    setShowColors((v) => !v);
+    setShowActions(true);
+  };
+
+  useEffect(() => {
+    if (!showColors) return;
+
+    const handleClickOutside = (e) => {
+      const clickedButton = colorBtnRef.current?.contains(e.target);
+      const clickedPopover = colorPopoverRef.current?.contains(e.target);
+
+      if (!clickedButton && !clickedPopover) {
+        setShowColors(false);
+        setShowActions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showColors]);
+
   return (
     <div>
       <div
-        className={[
-          styles.folderItem,
-          selected === folder.id ? styles.selected : '',
-        ].join(' ')}
+        className={[styles.folderItem, selected === folder.id ? styles.selected : ''].join(' ')}
         style={{ paddingLeft: `${12 + depth * 14}px` }}
         onClick={() => onSelect(folder.id)}
         onMouseEnter={() => setShowActions(true)}
-        onMouseLeave={() => setShowActions(false)}
+        onMouseLeave={() => {
+          if (!showColors) setShowActions(false);
+        }}
       >
-        <span className={styles.folderIcon}>▸</span>
+        <span className={styles.colorTag} style={{ background: folder.color || 'var(--color-plum-pale)' }} />
 
         {isEditing ? (
           <input
@@ -95,27 +155,60 @@ const FolderItem = ({ folder, depth, selected, onSelect, onRefresh, onDeleteSele
           <span className={styles.folderName}>{folder.name}</span>
         )}
 
-        {showActions && !isEditing && (
+        {(showActions || showColors) && !isEditing && (
           <div className={styles.actions} onClick={(e) => e.stopPropagation()}>
             <button
+              ref={colorBtnRef}
               className={styles.actionBtn}
-              onClick={() => setIsEditing(true)}
-              title="Rename"
+              onClick={toggleColorPopover}
+              title="Color"
             >
-              ✎
+              <span
+                className={styles.colorSwatchCurrent}
+                style={{ background: folder.color || 'var(--color-plum-pale)' }}
+              />
             </button>
-            <button
-              className={[styles.actionBtn, styles.deleteBtn].join(' ')}
-              onClick={() => setConfirmDelete(true)}
-              title="Delete"
-            >
-              ✕
+            <button className={styles.actionBtn} onClick={() => setIsEditing(true)} title="Rename">
+              <EditIcon size={14} />
+            </button>
+            <button className={[styles.actionBtn, styles.deleteBtn].join(' ')} onClick={() => setConfirmDelete(true)} title="Delete">
+              <CloseIcon size={14} />
             </button>
           </div>
         )}
+
+        {showColors &&
+          createPortal(
+            <div
+              ref={colorPopoverRef}
+              className={styles.colorPopover}
+              style={{
+                top: `${popoverPos.top}px`,
+                left: `${popoverPos.left}px`,
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {PALETTE.map((c) => (
+                <button
+                  key={c}
+                  className={[styles.swatch, folder.color === c ? styles.swatchActive : ''].join(' ')}
+                  style={{ background: c }}
+                  onClick={() => handleColor(c)}
+                  title={c}
+                />
+              ))}
+              <button
+                className={styles.swatchClear}
+                onClick={() => handleColor(null)}
+                title="No color"
+              >
+                ×
+              </button>
+            </div>,
+            document.body
+          )}
       </div>
 
-      {/* Render child folders recursively */}
       {folder.children?.map((child) => (
         <FolderItem
           key={child.id}
@@ -125,6 +218,7 @@ const FolderItem = ({ folder, depth, selected, onSelect, onRefresh, onDeleteSele
           onSelect={onSelect}
           onRefresh={onRefresh}
           onDeleteSelected={onDeleteSelected}
+          allFolders={allFolders}
         />
       ))}
 
@@ -148,7 +242,6 @@ const FolderTree = ({ folders, selected, onSelect, onCreated, onDeleteSelected }
     const trimmed = newName.trim();
     if (!trimmed) return;
 
-    // Check for duplicate name
     if (folders.some((f) => f.name.toLowerCase() === trimmed.toLowerCase())) {
       setNameError('A folder with this name already exists.');
       return;
@@ -196,9 +289,7 @@ const FolderTree = ({ folders, selected, onSelect, onCreated, onDeleteSelected }
       )}
 
       <div className={styles.folderList}>
-        {folders.length === 0 && (
-          <p className={styles.empty}>No folders yet</p>
-        )}
+        {folders.length === 0 && <p className={styles.empty}>No folders yet</p>}
         {folders.map((folder) => (
           <FolderItem
             key={folder.id}

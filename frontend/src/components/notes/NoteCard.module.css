@@ -1,47 +1,33 @@
 .card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
   padding: 18px 18px 14px;
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
   display: flex;
   flex-direction: column;
   gap: 12px;
-  min-height: 140px;
+  min-height: 148px;
   position: relative;
   overflow: hidden;
-}
-
-.card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3px;
-  background: linear-gradient(90deg, var(--color-plum) 0%, var(--color-sage) 100%);
-  opacity: 0;
-  transition: opacity 0.18s;
+  box-shadow: var(--shadow-sm);
 }
 
 .card:hover {
   border-color: var(--color-plum-pale);
   box-shadow: var(--shadow-md);
-  transform: translateY(-2px);
+  transform: translateY(-3px);
 }
 
-.card:hover::before {
-  opacity: 1;
-}
+/* Pastel tone variants for non-pinned cards */
+.variant0 { background: var(--color-surface); }
+.variant1 { background: var(--color-warm-white); }
+.variant2 { background: #F4EEF2; }
+.variant3 { background: #EDF1E9; }
 
 .pinnedCard {
   background: var(--color-warm-white);
   border-color: var(--color-plum-pale);
-}
-
-.pinnedCard::before {
-  opacity: 1;
 }
 
 .cardInner {
@@ -49,7 +35,7 @@
 }
 
 .title {
-  font-size: 14px;
+  font-size: 14.5px;
   font-weight: 600;
   color: var(--color-text-primary);
   margin-bottom: 7px;
@@ -84,12 +70,14 @@
 }
 
 .trashBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
-  font-size: 14px;
   color: var(--color-text-muted);
   cursor: pointer;
-  padding: 3px 6px;
+  padding: 4px;
   border-radius: var(--radius-sm);
   transition: color 0.15s, background 0.15s;
   opacity: 0;
@@ -105,7 +93,9 @@
 }
 
 .folderBadge {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
   color: var(--color-plum-mid);
   margin-bottom: 5px;
@@ -119,12 +109,14 @@
 }
 
 .pinBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
-  font-size: 14px;
   color: var(--color-text-muted);
   cursor: pointer;
-  padding: 3px 6px;
+  padding: 4px;
   border-radius: var(--radius-sm);
   transition: color 0.15s, background 0.15s;
   opacity: 0;
@@ -150,12 +142,14 @@
 }
 
 .moveBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   background: transparent;
   border: none;
-  font-size: 14px;
   color: var(--color-text-muted);
   cursor: pointer;
-  padding: 3px 6px;
+  padding: 4px;
   border-radius: var(--radius-sm);
   transition: color 0.15s, background 0.15s;
   opacity: 0;

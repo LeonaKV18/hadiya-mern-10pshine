@@ -1,6 +1,9 @@
 .layout {
   display: flex;
   height: 100vh;
+  gap: 14px;
+  padding: 14px;
+  background: var(--color-paper);
   overflow: hidden;
 }
 
@@ -10,6 +13,8 @@
   flex-direction: column;
   overflow: hidden;
   background: var(--color-cream);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .topBar {
@@ -19,7 +24,7 @@
 }
 
 .heading {
-  font-family: 'Lora', serif;
+  font-family: 'Newsreader', serif;
   font-size: 22px;
   font-weight: 600;
   color: var(--color-text-primary);
@@ -94,12 +99,12 @@
 
 .bulkBtnSecondary:hover {
   background: var(--color-sage);
-  color: #fff;
+  color: var(--color-warm-white);
 }
 
 .bulkBtnDanger {
   background: var(--color-danger);
-  color: #fff;
+  color: var(--color-warm-white);
   border: none;
   border-radius: var(--radius-sm);
   padding: 6px 14px;
@@ -182,7 +187,7 @@
 }
 
 .dialogTitle {
-  font-family: 'Lora', serif;
+  font-family: 'Newsreader', serif;
   font-size: 17px;
   font-weight: 600;
   color: var(--color-text-primary);

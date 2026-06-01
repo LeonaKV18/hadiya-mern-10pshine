@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateNote } from '../../api/notes';
 import toast from 'react-hot-toast';
+import { PinIcon, MoveIcon, TrashIcon, FolderIcon } from '../ui/Icons';
 import styles from './NoteCard.module.css';
 
 // Strips HTML for the preview snippet
 const stripHtml = (html) =>
   (html || '').replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
-const NoteCard = ({ note, onTrash, folderName, folders = [], onMoved, onPin }) => {
+const NoteCard = ({ note, onTrash, folderName, folders = [], onMoved, onPin, variant = 0 }) => {
   const navigate = useNavigate();
   const [showMoveMenu, setShowMoveMenu] = useState(false);
 
@@ -41,13 +42,20 @@ const NoteCard = ({ note, onTrash, folderName, folders = [], onMoved, onPin }) =
     }
   };
 
+  // Pinned cards keep their dedicated style; others rotate through pastel variants
+  const toneClass = note.is_pinned ? styles.pinnedCard : styles[`variant${variant % 4}`];
+
   return (
     <div
-      className={[styles.card, note.is_pinned ? styles.pinnedCard : ''].join(' ')}
+      className={[styles.card, toneClass].join(' ')}
       onClick={() => navigate(`/notes/${note.id}`)}
     >
       <div className={styles.cardInner}>
-        {folderName && <span className={styles.folderBadge}>▸ {folderName}</span>}
+        {folderName && (
+          <span className={styles.folderBadge}>
+            <FolderIcon size={12} /> {folderName}
+          </span>
+        )}
         <h3 className={styles.title}>{note.title || 'Untitled'}</h3>
         <p className={styles.preview}>{preview || 'No content yet...'}</p>
       </div>
@@ -59,7 +67,7 @@ const NoteCard = ({ note, onTrash, folderName, folders = [], onMoved, onPin }) =
             onClick={handlePin}
             title={note.is_pinned ? 'Unpin note' : 'Pin note'}
           >
-            ⚲
+            <PinIcon size={15} />
           </button>
 
           {folders.length > 0 && (
@@ -69,7 +77,7 @@ const NoteCard = ({ note, onTrash, folderName, folders = [], onMoved, onPin }) =
                 onClick={(e) => { e.stopPropagation(); setShowMoveMenu((v) => !v); }}
                 title="Move to folder"
               >
-                ⤴
+                <MoveIcon size={15} />
               </button>
               {showMoveMenu && (
                 <div className={styles.moveMenu}>
@@ -94,7 +102,7 @@ const NoteCard = ({ note, onTrash, folderName, folders = [], onMoved, onPin }) =
           )}
 
           <button className={styles.trashBtn} onClick={handleTrash} title="Move to trash">
-            ⊘
+            <TrashIcon size={15} />
           </button>
         </div>
       </div>

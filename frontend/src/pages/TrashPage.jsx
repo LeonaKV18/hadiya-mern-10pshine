@@ -111,6 +111,68 @@ const TrashPage = () => {
     }
   };
 
+  let trashBody;
+  if (isLoading) {
+    trashBody = <p className={styles.hint}>Loading...</p>;
+  } else if (notes.length === 0) {
+    trashBody = (
+      <div className={styles.empty}>
+        <span className={styles.emptyIcon}>⊘</span>
+        <p>Trash is empty.</p>
+      </div>
+    );
+  } else {
+    trashBody = (
+      <>
+        <div className={styles.bulkBar}>
+          <button className={styles.selectAllBtn} onClick={toggleSelectAll}>
+            {allSelected ? 'Deselect all' : 'Select all'}
+          </button>
+          <span className={styles.bulkCount}>
+            {selectedIds.size > 0 ? `${selectedIds.size} selected` : ''}
+          </span>
+          {selectedIds.size > 0 && (
+            <>
+              <button className={styles.bulkBtnSecondary} onClick={handleBulkRestore}>
+                Restore selected
+              </button>
+              <button className={styles.bulkBtnDanger} onClick={handleBulkDelete}>
+                Delete selected
+              </button>
+            </>
+          )}
+        </div>
+
+        <div className={styles.list}>
+          {notes.map((note) => (
+            <div key={note.id} className={styles.trashItem}>
+              <input
+                type="checkbox"
+                className={styles.trashCheckbox}
+                checked={selectedIds.has(note.id)}
+                onChange={() => toggleSelect(note.id)}
+              />
+              <div className={styles.trashInfo}>
+                <h3 className={styles.trashTitle}>{note.title || 'Untitled'}</h3>
+                <span className={styles.trashDate}>
+                  Deleted {new Date(note.deleted_at).toLocaleDateString()}
+                </span>
+              </div>
+              <div className={styles.trashActions}>
+                <Button variant="secondary" size="sm" onClick={() => handleRestore(note.id)}>
+                  Restore
+                </Button>
+                <Button variant="danger" size="sm" onClick={() => setConfirmDeleteId(note.id)}>
+                  Delete
+                </Button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className={styles.layout}>
       <Sidebar
@@ -127,64 +189,7 @@ const TrashPage = () => {
           <h1 className={styles.heading}>Trash</h1>
         </header>
 
-        <div className={styles.content}>
-          {isLoading ? (
-            <p className={styles.hint}>Loading...</p>
-          ) : notes.length === 0 ? (
-            <div className={styles.empty}>
-              <span className={styles.emptyIcon}>⊘</span>
-              <p>Trash is empty.</p>
-            </div>
-          ) : (
-            <>
-              <div className={styles.bulkBar}>
-                <button className={styles.selectAllBtn} onClick={toggleSelectAll}>
-                  {allSelected ? 'Deselect all' : 'Select all'}
-                </button>
-                <span className={styles.bulkCount}>
-                  {selectedIds.size > 0 ? `${selectedIds.size} selected` : ''}
-                </span>
-                {selectedIds.size > 0 && (
-                  <>
-                    <button className={styles.bulkBtnSecondary} onClick={handleBulkRestore}>
-                      Restore selected
-                    </button>
-                    <button className={styles.bulkBtnDanger} onClick={handleBulkDelete}>
-                      Delete selected
-                    </button>
-                  </>
-                )}
-              </div>
-
-              <div className={styles.list}>
-                {notes.map((note) => (
-                  <div key={note.id} className={styles.trashItem}>
-                    <input
-                      type="checkbox"
-                      className={styles.trashCheckbox}
-                      checked={selectedIds.has(note.id)}
-                      onChange={() => toggleSelect(note.id)}
-                    />
-                    <div className={styles.trashInfo}>
-                      <h3 className={styles.trashTitle}>{note.title || 'Untitled'}</h3>
-                      <span className={styles.trashDate}>
-                        Deleted {new Date(note.deleted_at).toLocaleDateString()}
-                      </span>
-                    </div>
-                    <div className={styles.trashActions}>
-                      <Button variant="secondary" size="sm" onClick={() => handleRestore(note.id)}>
-                        Restore
-                      </Button>
-                      <Button variant="danger" size="sm" onClick={() => setConfirmDeleteId(note.id)}>
-                        Delete
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </>
-          )}
-        </div>
+        <div className={styles.content}>{trashBody}</div>
       </main>
 
       {confirmDeleteId && (

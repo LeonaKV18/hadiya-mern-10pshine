@@ -4,6 +4,7 @@ import toast from 'react-hot-toast';
 import { register as registerApi } from '../api/auth';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
+import { PlumPadIcon } from '../components/ui/Icons';
 import styles from './AuthPage.module.css';
 
 const RegisterPage = () => {
@@ -53,8 +54,11 @@ const RegisterPage = () => {
       <div className={styles.panel}>
         <div className={styles.panelInner}>
           <div className={styles.logo}>
-            <span className={styles.logoIcon}>✦</span>
-            <span className={styles.logoText}>PlumPad</span>
+            <span className={styles.logoIcon}><PlumPadIcon size={26} /></span>
+            <div className={styles.brandLockup}>
+              <span className={styles.logoText}>PlumPad</span>
+              <span className={styles.brandSub}>Your virtual notebook</span>
+            </div>
           </div>
           <p className={styles.tagline}>Capture every idea<br />in one place.</p>
           <div className={styles.decorCircle1} />
@@ -75,7 +79,7 @@ const RegisterPage = () => {
             </div>
           ) : (
             <>
-              <h1 className={styles.heading}>Create account</h1>
+              <h1 className={styles.heading}>Create Account</h1>
               <p className={styles.subheading}>Start your note-taking journey</p>
 
               <form onSubmit={handleSubmit} className={styles.form}>

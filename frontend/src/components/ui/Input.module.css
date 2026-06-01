@@ -17,7 +17,7 @@
 
 .input {
   width: 100%;
-  padding: 10px 14px;
+  padding: 11px 16px;
   background: var(--color-surface);
   border: 1.5px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -32,8 +32,8 @@
 }
 
 .input:focus {
-  border-color: var(--color-plum-mid);
-  box-shadow: 0 0 0 3px rgba(142, 117, 138, 0.15);
+  border-color: var(--color-lavender);
+  box-shadow: 0 0 0 4px rgba(142, 136, 163, 0.14);
 }
 
 .hasError {

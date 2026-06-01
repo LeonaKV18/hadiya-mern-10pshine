@@ -1,21 +1,57 @@
 .page {
   display: flex;
   min-height: 100vh;
+  background: var(--color-cream);
 }
 
 /* Left decorative panel */
 .panel {
-  flex: 0 0 42%;
-  background: linear-gradient(145deg, var(--color-plum-dark) 0%, var(--color-plum) 60%, var(--color-plum-mid) 100%);
+  flex: 0 0 44%;
+  background: linear-gradient(150deg, var(--color-plum-dark) 0%, var(--color-plum) 65%, var(--color-plum-mid) 100%);
   position: relative;
   overflow: hidden;
   display: none;
+  -webkit-mask-size: 100% 100%;
+  mask-size: 100% 100%;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
 }
 
 @media (min-width: 768px) {
   .panel {
     display: block;
   }
+}
+
+/* Subtle botanical line-art, bottom-left */
+.panel::before {
+  content: '';
+  position: absolute;
+  left: 50px;
+  bottom: 0;
+  width: 85px;
+  aspect-ratio: 846 / 1920;
+  height: auto;
+  background: url('../assets/flower-accent.svg') no-repeat bottom left;
+  background-size: contain;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.panel::after {
+  content: '';
+  position: absolute;
+  right: 36px;
+  top: 0px;
+  width: 220px;
+  aspect-ratio: 1265 / 1920;
+  height: auto;
+  background: url('../assets/botanical-accent.svg') no-repeat top right;
+  background-size: contain;
+  opacity: 0.4;
+  pointer-events: none;
+  z-index: 1;
 }
 
 .panelInner {
@@ -31,30 +67,52 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 40px;
 }
 
 .logoIcon {
-  font-size: 22px;
-  color: var(--color-sage-light);
+  width: 65px;
+  height: 65px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-warm-white);
+  color: var(--color-plum-dark);
+  box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+}
+
+.brandLockup {
+  display: flex;
+  flex-direction: column;
 }
 
 .logoText {
-  font-size: 24px;
+  font-family: var(--font-brand);
+  font-style: italic;
+  font-size: 48px;
   font-weight: 700;
-  color: #fff;
-  font-family: 'Lora', serif;
-  letter-spacing: -0.02em;
+  color: var(--color-warm-white);
+  line-height: 1;
+}
+
+.brandSub {
+  font-size: 13px;
+  color: rgba(255, 246, 234, 0.65);
+  letter-spacing: 0.06em;
+  margin-top: 2px;
 }
 
 .tagline {
-  font-family: 'Lora', serif;
-  font-size: 38px;
+  font-family: 'Newsreader', serif;
+  font-size: 35px;
   font-weight: 400;
   font-style: italic;
   color: rgba(255, 255, 255, 0.92);
   line-height: 1.3;
+  margin-top: 20px;
 }
 
 /* Decorative circles */
@@ -63,9 +121,10 @@
   width: 320px;
   height: 320px;
   border-radius: 50%;
-  background: rgba(186, 198, 178, 0.12);
+  background: rgba(186, 198, 178, 0.1);
   bottom: -80px;
-  right: -80px;
+  right: -60px;
+  z-index: 0;
 }
 
 .decorCircle2 {
@@ -73,9 +132,10 @@
   width: 200px;
   height: 200px;
   border-radius: 50%;
-  background: rgba(255, 246, 234, 0.08);
+  background: rgba(255, 246, 234, 0.07);
   top: 60px;
   right: 40px;
+  z-index: 0;
 }
 
 /* Right form side */
@@ -94,17 +154,20 @@
 }
 
 .heading {
-  font-family: 'Lora', serif;
-  font-size: 30px;
-  font-weight: 600;
+  font-family: 'Garamond', serif;
+  font-size: 42px;
+  font-weight: 800;
   color: var(--color-text-primary);
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  text-align: center;
+  line-height: 1.1;
 }
 
 .subheading {
-  font-size: 14px;
+  font-size: 15px;
   color: var(--color-text-muted);
   margin-bottom: 32px;
+  text-align: center;
 }
 
 .form {
@@ -187,7 +250,7 @@
 }
 
 .successBox h2 {
-  font-family: 'Lora', serif;
+  font-family: 'Newsreader', serif;
   font-size: 22px;
   color: var(--color-text-primary);
 }
