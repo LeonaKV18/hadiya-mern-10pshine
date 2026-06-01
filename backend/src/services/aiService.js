@@ -31,7 +31,7 @@ const summariseNote = async (title, content) => {
     throw error;
   }
 
-  const prompt = `Summarise the following note in 2-4 concise sentences. Do not include any preamble or meta-commentary - just the summary.
+  const prompt = `Summarise the following note in 3-6 complete sentences. Cover the main ideas from the whole note. Do not end mid-sentence. Do not include any preamble or meta-commentary - just the summary.
 
 Title: ${title || 'Untitled'}
 
@@ -58,7 +58,8 @@ ${plainText.slice(0, 12000)}`;
         ],
         generationConfig: {
           temperature: 0.2,
-          maxOutputTokens: 300,
+          maxOutputTokens: 1024,
+          thinkingConfig: { thinkingLevel: 'low' },
         },
       }),
     }
@@ -77,19 +78,26 @@ ${plainText.slice(0, 12000)}`;
     throw error;
   }
 
-  const summary = data?.candidates?.[0]?.content?.parts
-    ?.map((part) => part.text)
-    .filter(Boolean)
-    .join('')
-    .trim();
+const candidate = data?.candidates?.[0];
 
-  if (!summary) {
-    const error = new Error('Failed to generate summary. Please try again.');
-    error.status = 502;
-    throw error;
-  }
+    // Exclude internal thought parts so reasoning doesn't leak into summary
+    const summary = (candidate?.content?.parts || [])
+      .filter((part) => !part.thought)
+      .map((part) => part.text)
+      .filter(Boolean)
+      .join('')
+      .trim();
 
-  return summary;
+    if (!summary) {
+      const reason = candidate?.finishReason === 'MAX_TOKENS'
+        ? 'The summary was cut off before any text was produced. Please try again.'
+        : 'Failed to generate summary. Please try again.';
+      const error = new Error(reason);
+      error.status = 502;
+      throw error;
+    }
+
+    return summary;
 };
 
 module.exports = { summariseNote };

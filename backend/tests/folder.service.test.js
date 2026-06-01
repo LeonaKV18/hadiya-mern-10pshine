@@ -138,7 +138,7 @@ describe('folderService.renameFolder', () => {
       expect.fail('Expected error was not thrown');
     } catch (err) {
       expect(err.status).to.equal(400);
-      expect(err.message).to.include('required');
+      expect(err.message).to.include('update');
     }
   });
 

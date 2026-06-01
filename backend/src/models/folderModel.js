@@ -16,11 +16,23 @@ const Folder = sequelize.define('Folder', {
     type: DataTypes.STRING(100),
     allowNull: false,
   },
-  // parent_id is null for root-level folders and set to another folder id for nesting
+// parent_id is null for root-level folders and set to another folder id for nesting
   parent_id: {
     type: DataTypes.INTEGER,
     allowNull: true,
     defaultValue: null,
+  },
+  // Optional pastel color tag shown on the folder's left edge in the sidebar
+  color: {
+    type: DataTypes.STRING(20),
+    allowNull: true,
+    defaultValue: null,
+  },
+  // System folders (Favorites/Journal/Study/Work) cannot be renamed or deleted
+  is_system: {
+    type: DataTypes.BOOLEAN,
+    allowNull: false,
+    defaultValue: false,
   },
 }, {
   tableName: 'folders',
@@ -47,8 +59,8 @@ const getFolderById = async (id) => {
   return Folder.findOne({ where: { id } });
 };
 
-const createFolder = async (userId, name, parentId = null) => {
-  return Folder.create({ user_id: userId, name, parent_id: parentId });
+const createFolder = async (userId, name, parentId = null, color = null) => {
+  return Folder.create({ user_id: userId, name, parent_id: parentId, color });
 };
 
 const updateFolder = async (folder, fields) => {

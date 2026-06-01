@@ -25,8 +25,8 @@ const getFolderById = async (req, res, next) => {
 // POST /api/folders
 const createFolder = async (req, res, next) => {
   try {
-    const { name, parent_id } = req.body;
-    const folder = await folderService.createNewFolder(req.user.id, name, parent_id);
+    const { name, parent_id, color } = req.body;
+    const folder = await folderService.createNewFolder(req.user.id, name, parent_id, color);
     logger.info({ userId: req.user.id, folderId: folder.id }, 'Folder created');
     res.status(201).json({ success: true, folder });
   } catch (error) {
@@ -38,8 +38,8 @@ const createFolder = async (req, res, next) => {
 const renameFolder = async (req, res, next) => {
   try {
     const folderId = parseInt(req.params.id, 10);
-    const { name } = req.body;
-    const folder = await folderService.renameFolder(folderId, req.user.id, name);
+    const { name, color } = req.body;
+    const folder = await folderService.renameFolder(folderId, req.user.id, name, color);
     logger.info({ userId: req.user.id, folderId }, 'Folder renamed');
     res.status(200).json({ success: true, folder });
   } catch (error) {

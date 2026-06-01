@@ -137,6 +137,24 @@ const updatePreferences = async (userId, preferences) => {
   return User.update({ preferences }, { where: { id: userId } });
 };
 
+// Permanently delete a user and all of their data.
+const deleteUserById = async (userId) => {
+  const { Note } = require('./noteModel');
+  const { Folder } = require('./folderModel');
+  const { Attachment } = require('./attachmentModel');
+
+  await Attachment.destroy({ where: { user_id: userId } });
+  await Note.destroy({ where: { user_id: userId }, force: true });
+  await Folder.destroy({ where: { user_id: userId } });
+  const deletedCount = await User.destroy({ where: { id: userId } });
+
+  if (deletedCount === 0) {
+    const error = new Error('User not found.');
+    error.status = 404;
+    throw error;
+  }
+};
+
 module.exports = {
   User,
   findByEmail,
@@ -147,4 +165,5 @@ module.exports = {
   markAsVerified,
   updateVerificationToken,
   updatePreferences,
+  deleteUserById,
 };

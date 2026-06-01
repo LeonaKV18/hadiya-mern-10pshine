@@ -59,4 +59,15 @@ const updateUserPreferences = async (req, res, next) => {
   }
 };
 
-module.exports = { getMyProfile, updateUserPreferences };
+// DELETE /api/users/me — permanently delete the account and all its data
+const deleteMyAccount = async (req, res, next) => {
+  try {
+    await deleteUserById(req.user.id);
+    logger.info({ userId: req.user.id }, 'User account deleted');
+    res.status(200).json({ success: true, message: 'Account deleted.' });
+  } catch (error) {
+    next(error);
+  }
+};
+
+module.exports = { getMyProfile, updateUserPreferences, deleteMyAccount };
