@@ -9,7 +9,7 @@
   gap: 12px;
   min-height: 148px;
   position: relative;
-  overflow: hidden;
+  overflow: visible; 
   box-shadow: var(--shadow-sm);
 }
 

@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-PlumPad is a full-stack Notes application built using Node.js and React.js. It allows users to create, edit, and delete notes while ensuring that each user’s data remains private through authentication. 
+PlumPad is a full-stack Notes application built using Node.js, React.js and MySQL. It allows users to create, organize, edit, search, pin, summarize, export and delete notes while ensuring that each user’s data remains private through authentication. 
 
 The application follows a client-server architecture, where the frontend communicates with a backend API, and data is stored in a database.
 
@@ -12,17 +12,67 @@ The application follows a client-server architecture, where the frontend communi
 
 ### User Authentication
 
-* User registration (sign up)
-* User login and logout
-* Secure access to user-specific data
+* User registration and login
+* Email verification flow
+* Logout and session restore
+* JWT-based authentication
+* Protected access to user-specific notes and folders
+* Account deletion support
 
 ### Note Management
 
 * Create new notes
 * Edit existing notes
-* Delete notes
-* Each note is linked to the authenticated user
-* Support for rich text editing
+* Autosave note updates
+* Delete notes by moving them to trash
+* Restore notes from trash
+* Permanently delete trashed notes
+* Pin and unpin important notes
+* Search notes by title or content
+* Move notes between folders
+* Export notes in supported formats
+* Generate AI summaries for note content
+
+### Rich Text Editing
+
+* Rich text note editor
+* Support for formatted note content
+* Stores note content as rich HTML
+* Supports realistic note-taking use cases such as lists, headings, emphasis, annotations, and structured content
+
+### Folder Management
+
+* Create custom folders
+* Rename folders
+* Delete folders
+* Assign colors to folders
+* Move notes into folders
+* Includes protected system folders:
+  * Favourites
+  * Journal
+  * Study
+  * Work
+* System folders are created automatically and cannot be renamed or deleted
+
+
+
+
+
+### Frontend Experience
+
+* React Router-based navigation
+* Authentication context for user session handling
+* Axios API client with JWT token injection
+* Toast notifications for user feedback
+* Reusable UI components
+* Dashboard, note editor, trash, login, register, verify email, and auth callback pages
+* Global PlumPad styling and design tokens
+
+
+
+### Logging
+
+
 
 ### Logging
 
@@ -40,13 +90,16 @@ The application follows a client-server architecture, where the frontend communi
 
 ### Database Integration
 
-* Stores user and note data
 * Uses MySQL for data storage
-### Testing
+* Uses Sequelize for database models and queries
+* Stores users, notes, folders, attachments, and related records
+* Supports soft deletion for notes using trash behavior
 
+### Testing
 * Backend testing using Mocha/Chai
-* Frontend testing using Jest
-* Covers core logic such as APIs and data handling
+* Frontend testing using Jest and React Testing Library
+* Covers core backend services and frontend user flows
+* Includes tests for notes, folders, authentication pages, dashboard behavior, editor actions, and trash actions
 
 ### Code Quality
 
@@ -60,23 +113,27 @@ The application follows a client-server architecture, where the frontend communi
 ### Frontend
 
 * React.js
+* CSS Modules
 
 ### Backend
 
 * Node.js
 * Express.js
+* Sequelize
+* JWT authentication
+* Passport authentication support
+* Pino logging
 
 ### Database
 
 * MySQL
 
-### Tools & Libraries
+### Testing
 
 * Pino (logging)
 * Mocha & Chai (backend testing)
 * Jest (frontend testing)
 * SonarQube (code quality)
-* Git (version control)
 
 ---
 

@@ -31,7 +31,7 @@ const summariseNote = async (title, content) => {
     throw error;
   }
 
-  const prompt = `Summarise the following note in 3-6 complete sentences. Cover the main ideas from the whole note. Do not end mid-sentence. Do not include any preamble or meta-commentary - just the summary.
+  const prompt = `Summarise the overall gist of following note in 2-5 complete sentences. Cover the main ideas from the whole note. Do not end mid-sentence. Do not include any preamble or meta-commentary - just the summary.
 
 Title: ${title || 'Untitled'}
 
@@ -58,7 +58,7 @@ ${plainText.slice(0, 12000)}`;
         ],
         generationConfig: {
           temperature: 0.2,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
           thinkingConfig: { thinkingLevel: 'low' },
         },
       }),
